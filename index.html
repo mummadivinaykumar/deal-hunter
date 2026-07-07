@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Deal Hunter</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:sans-serif;background:#f3f4f6}
+
+/* NAV */
+.nav{background:#1a1a1a;padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{color:#f5a623;font-weight:700;font-size:18px;letter-spacing:-.3px}
+.search-bar{flex:1;min-width:180px;display:flex;gap:6px}
+.search-bar input{flex:1;padding:8px 12px;border-radius:8px;border:none;font-size:14px;background:#fff;color:#333;outline:none}
+.search-bar button{background:#f5a623;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:14px;color:#333;font-weight:600}
+.search-bar button:hover{background:#e09500}
+.nav-actions{display:flex;align-items:center;gap:8px}
+.btn-outline{background:transparent;border:1px solid #555;color:#fff;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:13px;transition:all .15s}
+.btn-outline:hover{background:#333;border-color:#888}
+.btn-primary-sm{background:#f5a623;border:none;color:#1a1a1a;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:background .15s}
+.btn-primary-sm:hover{background:#e09500}
+.user-chip{display:flex;align-items:center;gap:8px;background:#2d2d2d;border-radius:8px;padding:5px 10px}
+.user-avatar{width:26px;height:26px;border-radius:50%;background:#f5a623;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#1a1a1a}
+.user-name{color:#fff;font-size:13px}
+.logout-btn{background:transparent;border:1px solid #f87171;color:#f87171;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:12px;transition:all .15s}
+.logout-btn:hover{background:#7f1d1d;border-color:#f87171}
+
+/* CAT BAR */
+.cat-bar{background:#2d2d2d;padding:8px 16px;display:flex;gap:12px;overflow-x:auto}
+.cat-bar span{color:#ccc;font-size:13px;cursor:pointer;white-space:nowrap;padding:5px 10px;border-radius:8px;transition:background .15s}
+.cat-bar span:hover,.cat-bar span.active{background:#f5a623;color:#1a1a1a;font-weight:600}
+
+/* CONTENT */
+.content{padding:16px;max-width:1200px;margin:0 auto}
+.section-title{font-size:17px;font-weight:600;color:#111;margin-bottom:12px}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:24px}
+.cat-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 10px;text-align:center;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.cat-card:hover{border-color:#f5a623;box-shadow:0 2px 8px rgba(245,166,35,.15)}
+.cat-icon{font-size:28px;margin-bottom:6px}
+.cat-card p{font-size:12px;font-weight:500;color:#333}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;margin-bottom:24px}
+.product-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.product-card:hover{border-color:#f5a623;box-shadow:0 2px 10px rgba(245,166,35,.15)}
+.product-img{height:100px;display:flex;align-items:center;justify-content:center;font-size:42px}
+.product-info{padding:10px}
+.badge{background:#e53935;color:#fff;font-size:10px;padding:2px 7px;border-radius:4px;display:inline-block;margin-bottom:5px;font-weight:600}
+.product-name{font-size:13px;color:#111;margin-bottom:5px;font-weight:500}
+.price-row{display:flex;align-items:center;gap:7px;margin-bottom:9px;flex-wrap:wrap}
+.price{font-size:15px;font-weight:700;color:#2e7d32}
+.orig{font-size:11px;color:#9ca3af;text-decoration:line-through}
+.add-btn{width:100%;background:#f5a623;border:none;border-radius:8px;padding:7px;font-size:12px;cursor:pointer;font-weight:600;color:#333;transition:background .15s}
+.add-btn:hover{background:#e09500}
+.empty{text-align:center;padding:48px 16px;color:#9ca3af;font-size:14px}
+
+/* PRODUCT MODAL */
+.modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:100;padding:16px}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modal-header{padding:16px 20px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:1}
+.modal-header h3{font-size:15px;font-weight:600;color:#111}
+.close-btn{background:none;border:none;font-size:22px;cursor:pointer;color:#6b7280;line-height:1}
+.close-btn:hover{color:#111}
+.modal-body{padding:20px}
+.modal-img{height:150px;display:flex;align-items:center;justify-content:center;font-size:72px;border-radius:10px;margin-bottom:14px}
+.modal-name{font-size:17px;font-weight:600;color:#111;margin-bottom:6px}
+.modal-desc{font-size:13px;color:#6b7280;margin-bottom:12px;line-height:1.6}
+.compare-title{font-size:12px;font-weight:600;color:#6b7280;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em}
+.store-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:8px;margin-bottom:7px;border:1px solid #e5e7eb}
+.store-row.best{border-color:#2e7d32;background:#f0fdf4}
+.store-name{font-size:13px;font-weight:500;color:#111}
+.store-right{display:flex;align-items:center;gap:8px}
+.store-price{font-size:13px;font-weight:700;color:#2e7d32}
+.best-tag{font-size:10px;background:#2e7d32;color:#fff;padding:2px 7px;border-radius:4px;font-weight:600}
+.buy-btn{width:100%;background:#f5a623;border:none;border-radius:10px;padding:12px;font-size:15px;cursor:pointer;font-weight:700;margin-top:14px;color:#333;transition:background .15s}
+.buy-btn:hover{background:#e09500}
+
+/* AUTH MODAL */
+.auth-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px}
+.auth-modal{background:#fff;border-radius:18px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden;animation:slideUp .25s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.auth-top{background:#1a1a1a;padding:26px 28px 22px;text-align:center;position:relative}
+.auth-logo{color:#f5a623;font-size:21px;font-weight:700;margin-bottom:4px}
+.auth-tagline{color:#9ca3af;font-size:13px}
+.auth-x{position:absolute;top:12px;right:14px;background:none;border:none;color:#6b7280;font-size:22px;cursor:pointer;line-height:1}
+.auth-x:hover{color:#fff}
+.auth-tabs{display:flex;background:#f3f4f6;margin:18px 18px 0;border-radius:10px;padding:3px;gap:3px}
+.auth-tab{flex:1;padding:8px;text-align:center;font-size:14px;font-weight:600;cursor:pointer;border-radius:8px;border:none;background:transparent;color:#6b7280;transition:all .15s}
+.auth-tab.active{background:#fff;color:#111;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.auth-form{padding:18px 22px 22px}
+.form-group{margin-bottom:13px}
+.form-label{display:block;font-size:11px;font-weight:700;color:#374151;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.form-input{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:14px;color:#111;outline:none;transition:border-color .15s,box-shadow .15s}
+.form-input:focus{border-color:#f5a623;box-shadow:0 0 0 3px rgba(245,166,35,.12)}
+.form-input.is-error{border-color:#ef4444 !important;box-shadow:0 0 0 3px rgba(239,68,68,.1) !important}
+.form-input.is-ok{border-color:#22c55e !important;box-shadow:0 0 0 3px rgba(34,197,94,.08) !important}
+.err-msg{font-size:11px;color:#ef4444;margin-top:4px;min-height:16px}
+.pw-wrap{position:relative}
+.pw-wrap .form-input{padding-right:40px}
+.pw-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:15px;line-height:1;color:#9ca3af}
+.pw-eye:hover{color:#374151}
+.strength-bar{height:4px;border-radius:2px;background:#e5e7eb;overflow:hidden;margin-top:6px}
+.strength-fill{height:100%;border-radius:2px;transition:width .3s,background .3s;width:0}
+.strength-lbl{font-size:11px;margin-top:3px;min-height:14px}
+.auth-btn{width:100%;background:#f5a623;border:none;border-radius:10px;padding:11px;font-size:15px;font-weight:700;color:#1a1a1a;cursor:pointer;transition:background .15s;margin-top:4px}
+.auth-btn:hover{background:#e09500}
+.auth-switch{text-align:center;font-size:13px;color:#6b7280;margin-top:14px}
+.auth-switch a{color:#f5a623;font-weight:600;text-decoration:none}
+.auth-switch a:hover{text-decoration:underline}
+.global-err{font-size:13px;color:#ef4444;margin-bottom:10px;min-height:18px;text-align:center}
+.success-box{padding:32px 24px;text-align:center}
+.success-box .s-icon{font-size:52px;margin-bottom:12px}
+.success-box .s-title{font-size:18px;font-weight:700;color:#111;margin-bottom:6px}
+.success-box .s-sub{font-size:13px;color:#6b7280;margin-bottom:20px;line-height:1.5}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a1a;color:#fff;padding:10px 22px;border-radius:10px;font-size:13px;font-weight:500;z-index:999;transition:transform .3s ease;white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.is-green{background:#15803d}
+.toast.is-red{background:#dc2626}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="nav">
+    <div class="logo">☰ Deal Hunter</div>
+    <div class="search-bar">
+      <input id="searchInput" placeholder="Search products, brands and more..." onkeyup="handleSearch(event)"/>
+      <button onclick="doSearch()">🔍</button>
+    </div>
+    <div class="nav-actions" id="navActions"></div>
+  </div>
+  <div class="cat-bar" id="catBar"></div>
+  <div class="content" id="mainContent"></div>
+</div>
+
+<!-- Product Modal -->
+<div class="modal-bg" id="prodModal" style="display:none" onclick="if(event.target.id==='prodModal')closeProdModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle"></h3>
+      <button class="close-btn" onclick="closeProdModal()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Auth Modal -->
+<div class="auth-overlay" id="authOverlay" style="display:none" onclick="if(event.target.id==='authOverlay')closeAuth()">
+  <div class="auth-modal">
+    <div class="auth-top">
+      <button class="auth-x" onclick="closeAuth()">×</button>
+      <div class="auth-logo">🏷️ Deal Hunter</div>
+      <div class="auth-tagline">Sign in to hunt the best deals</div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">Login</button>
+      <button class="auth-tab" id="tabSignup" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+    <div id="authBody"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== DATA ===== */
+const products=[
+  {id:1,name:"Smartphone Pro Max",cat:"Mobiles",icon:"📱",desc:'6.7" AMOLED display, 108MP camera, 5000mAh battery, 5G ready.',off:42,price:18999,orig:32999,stores:[{name:"Amazon",price:18999},{name:"Flipkart",price:19499},{name:"Croma",price:20999},{name:"Reliance Digital",price:21499}]},
+  {id:2,name:'Gaming Laptop 16"',cat:"Laptops",icon:"💻",desc:"Intel i9, RTX 4070, 32GB RAM, 1TB NVMe SSD, 165Hz display.",off:35,price:41999,orig:64999,stores:[{name:"Amazon",price:41999},{name:"Flipkart",price:42499},{name:"Vijay Sales",price:43999},{name:"Croma",price:44999}]},
+  {id:3,name:"Casual Summer Wear",cat:"Fashion",icon:"👕",desc:"100% breathable cotton, available in 12 colors, unisex fit.",off:60,price:599,orig:1499,stores:[{name:"Myntra",price:599},{name:"Amazon",price:699},{name:"Ajio",price:749},{name:"Flipkart",price:799}]},
+  {id:4,name:"Running Shoes",cat:"Shoes",icon:"👟",desc:"Lightweight mesh upper, cushioned sole, anti-slip grip.",off:25,price:2999,orig:3999,stores:[{name:"Amazon",price:2999},{name:"Flipkart",price:3149},{name:"Myntra",price:3299},{name:"Ajio",price:3499}]},
+  {id:5,name:"Wireless Earbuds",cat:"Electronics",icon:"🎧",desc:"Active Noise Cancellation, 30hr battery, IPX5 water resistant.",off:30,price:3499,orig:4999,stores:[{name:"Amazon",price:3499},{name:"Flipkart",price:3599},{name:"Croma",price:3899},{name:"Reliance Digital",price:3999}]},
+  {id:6,name:"Air Fryer 5L",cat:"Home & Kitchen",icon:"🍳",desc:"Digital panel, 8 presets, rapid hot-air technology, non-stick basket.",off:20,price:4799,orig:5999,stores:[{name:"Amazon",price:4799},{name:"Flipkart",price:4999},{name:"Croma",price:5199},{name:"Vijay Sales",price:5399}]},
+  {id:7,name:"Cricket Bat Premium",cat:"Sports",icon:"🏏",desc:"English Willow Grade 1, extra cover, full-size, 1.2kg.",off:15,price:3399,orig:3999,stores:[{name:"Amazon",price:3399},{name:"Flipkart",price:3499},{name:"SportZone",price:3799},{name:"Decathlon",price:3599}]},
+  {id:8,name:"Organic Rice 5kg",cat:"Groceries",icon:"🌾",desc:"Basmati, aged 2 years, pesticide-free, certified organic.",off:10,price:449,orig:499,stores:[{name:"Blinkit",price:449},{name:"Zepto",price:459},{name:"BigBasket",price:469},{name:"Amazon",price:489}]},
+  {id:9,name:'Tablet 10"',cat:"Electronics",icon:"📲",desc:"2K display, Snapdragon 870, 8GB RAM, 256GB storage, stylus support.",off:28,price:25999,orig:35999,stores:[{name:"Amazon",price:25999},{name:"Flipkart",price:26499},{name:"Croma",price:27499},{name:"Reliance Digital",price:27999}]},
+  {id:10,name:"Yoga Mat Pro",cat:"Sports",icon:"🧘",desc:"6mm thick, non-slip, eco-friendly TPE, includes carry strap.",off:22,price:899,orig:1149,stores:[{name:"Amazon",price:899},{name:"Flipkart",price:929},{name:"Decathlon",price:999},{name:"SportZone",price:1049}]},
+  {id:11,name:"Coffee Maker",cat:"Home & Kitchen",icon:"☕",desc:"12-cup drip coffee maker, programmable timer, anti-drip system.",off:18,price:2499,orig:2999,stores:[{name:"Amazon",price:2499},{name:"Flipkart",price:2599},{name:"Croma",price:2799},{name:"Vijay Sales",price:2899}]},
+  {id:12,name:"Smart Watch",cat:"Electronics",icon:"⌚",desc:"AMOLED, SpO2, GPS, 7-day battery, IP68, 100+ watch faces.",off:33,price:8999,orig:13499,stores:[{name:"Amazon",price:8999},{name:"Flipkart",price:9299},{name:"Croma",price:9799},{name:"Reliance Digital",price:9999}]},
+];
+const cats=["All","Mobiles","Laptops","Fashion","Groceries","Shoes","Electronics","Home & Kitchen","Sports"];
+const catIcons={Mobiles:"📱",Laptops:"💻",Fashion:"👕",Groceries:"🛒",Shoes:"👟",Electronics:"⚡","Home & Kitchen":"🏠",Sports:"⚽"};
+const catBg={Mobiles:"#dbeafe",Laptops:"#ede9fe",Fashion:"#fce7f3",Groceries:"#dcfce7",Shoes:"#fef9c3",Electronics:"#e0f2fe","Home & Kitchen":"#fff7ed",Sports:"#f0fdf4"};
+let activeCat="All", searchQuery="";
+
+/* ===== SESSION / STORAGE ===== */
+const getSession=()=>{try{return JSON.parse(localStorage.getItem("dh_sess")||"null")}catch{return null}};
+const setSession=u=>localStorage.setItem("dh_sess",JSON.stringify(u));
+const clearSession=()=>localStorage.removeItem("dh_sess");
+const getUsers=()=>{try{return JSON.parse(localStorage.getItem("dh_users")||"{}")}catch{return{}}};
+const saveUsers=u=>localStorage.setItem("dh_users",JSON.stringify(u));
+
+/* ===== TOAST ===== */
+let _tt;
+function toast(msg,type=""){
+  const el=document.getElementById("toast");
+  el.textContent=msg; el.className="toast show"+(type?" is-"+type:"");
+  clearTimeout(_tt); _tt=setTimeout(()=>{el.className="toast"},2800);
+}
+
+/* ===== NAV ===== */
+function renderNav(){
+  const s=getSession(), el=document.getElementById("navActions");
+  if(s){
+    const ini=s.name.split(" ").map(w=>w[0]).join("").toUpperCase().slice(0,2);
+    el.innerHTML=`
+      <div class="user-chip">
+        <div class="user-avatar">${ini}</div>
+        <span class="user-name">${s.name.split(" ")[0]}</span>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+      <button class="btn-outline">🛒 Cart</button>`;
+  } else {
+    el.innerHTML=`
+      <button class="btn-outline" onclick="openAuth('login')">Login</button>
+      <button class="btn-primary-sm" onclick="openAuth('signup')">Sign Up</button>
+      <button class="btn-outline">🛒 Cart</button>`;
+  }
+}
+function doLogout(){clearSession();renderNav();toast("Logged out successfully");}
+
+/* ===== AUTH ===== */
+let _tab="login";
+function openAuth(tab){
+  _tab=tab||"login";
+  document.getElementById("authOverlay").style.display="flex";
+  document.body.style.overflow="hidden";
+  switchTab(_tab);
+}
+function closeAuth(){
+  document.getElementById("authOverlay").style.display="none";
+  document.body.style.overflow="";
+}
+function switchTab(tab){
+  _tab=tab;
+  document.getElementById("tabLogin").className="auth-tab"+(tab==="login"?" active":"");
+  document.getElementById("tabSignup").className="auth-tab"+(tab==="signup"?" active":"");
+  tab==="login"?renderLogin():renderSignup();
+}
+
+/* ---- LOGIN FORM ---- */
+function renderLogin(){
+  document.getElementById("authBody").innerHTML=`
+    <div class="auth-form">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="l_em" type="email" placeholder="you@example.com" oninput="clrE('l_em')"/>
+        <div class="err-msg" id="l_em_e"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="pw-wrap">
+          <input class="form-input" id="l_pw" type="password" placeholder="Your password" oninput="clrE('l_pw')"/>
+          <button class="pw-eye" type="button" onclick="eyeToggle('l_pw',this)">👁</button>
+        </div>
+        <div class="err-msg" id="l_pw_e"></div>
+      </div>
+      <div class="global-err" id="l_ge"></div>
+      <button class="auth-btn" onclick="doLogin()">Login to Deal Hunter</button>
+      <div class="auth-switch">New here? <a href="#" onclick="switchTab('signup');return false">Create account</a></div>
+    </div>`;
+}
+
+/* ---- SIGNUP FORM ---- */
+function renderSignup(){
+  document.getElementById("authBody").innerHTML=`
+    <div class="auth-form">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input class="form-input" id="s_nm" type="text" placeholder="Your full name" oninput="clrE('s_nm')"/>
+        <div class="err-msg" id="s_nm_e"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="s_em" type="email" placeholder="you@example.com" oninput="clrE('s_em')"/>
+        <div class="err-msg" id="s_em_e"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="pw-wrap">
+          <input class="form-input" id="s_pw" type="password" placeholder="Min 6 characters" oninput="clrE('s_pw');pwStrength()"/>
+          <button class="pw-eye" type="button" onclick="eyeToggle('s_pw',this)">👁</button>
+        </div>
+        <div class="strength-bar"><div class="strength-fill" id="s_sf"></div></div>
+        <div class="strength-lbl" id="s_sl"></div>
+        <div class="err-msg" id="s_pw_e"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <div class="pw-wrap">
+          <input class="form-input" id="s_pw2" type="password" placeholder="Re-enter password" oninput="clrE('s_pw2')"/>
+          <button class="pw-eye" type="button" onclick="eyeToggle('s_pw2',this)">👁</button>
+        </div>
+        <div class="err-msg" id="s_pw2_e"></div>
+      </div>
+      <div class="global-err" id="s_ge"></div>
+      <button class="auth-btn" onclick="doSignup()">Create Account</button>
+      <div class="auth-switch">Already have an account? <a href="#" onclick="switchTab('login');return false">Login</a></div>
+    </div>`;
+}
+
+/* ---- VALIDATION HELPERS ---- */
+const gv=id=>{const e=document.getElementById(id);return e?e.value.trim():""};
+const isEmail=e=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+
+function showE(id,msg){
+  const inp=document.getElementById(id),err=document.getElementById(id+"_e");
+  if(inp){inp.classList.remove("is-ok");inp.classList.add("is-error");}
+  if(err) err.textContent=msg;
+}
+function clrE(id){
+  const inp=document.getElementById(id),err=document.getElementById(id+"_e");
+  if(inp){inp.classList.remove("is-error","is-ok");}
+  if(err) err.textContent="";
+}
+function markOk(id){
+  const inp=document.getElementById(id);
+  if(inp){inp.classList.remove("is-error");inp.classList.add("is-ok");}
+}
+function eyeToggle(id,btn){
+  const inp=document.getElementById(id);
+  if(!inp) return;
+  inp.type=inp.type==="password"?"text":"password";
+  btn.textContent=inp.type==="password"?"👁":"🙈";
+}
+function pwStrength(){
+  const pw=gv("s_pw"),fill=document.getElementById("s_sf"),lbl=document.getElementById("s_sl");
+  if(!fill) return;
+  if(!pw){fill.style.width="0";lbl.textContent="";return;}
+  let sc=0;
+  if(pw.length>=6)sc++;if(pw.length>=10)sc++;
+  if(/[A-Z]/.test(pw))sc++;if(/[0-9]/.test(pw))sc++;if(/[^A-Za-z0-9]/.test(pw))sc++;
+  const lvl=[["20%","#ef4444","Weak"],["40%","#f97316","Fair"],["60%","#eab308","Good"],["80%","#84cc16","Strong"],["100%","#22c55e","Very strong"]][Math.min(sc-1,4)]||["0%","#e5e7eb",""];
+  fill.style.width=lvl[0];fill.style.background=lvl[1];
+  lbl.textContent=lvl[2];lbl.style.color=lvl[1];
+}
+
+/* ---- LOGIN LOGIC ---- */
+function doLogin(){
+  const em=gv("l_em"),pw=gv("l_pw");
+  let ok=true;
+  document.getElementById("l_ge").textContent="";
+  if(!em){showE("l_em","Email is required");ok=false;}
+  else if(!isEmail(em)){showE("l_em","Enter a valid email address");ok=false;}
+  else markOk("l_em");
+  if(!pw){showE("l_pw","Password is required");ok=false;}
+  else markOk("l_pw");
+  if(!ok) return;
+  const users=getUsers(), u=users[em.toLowerCase()];
+  if(!u){showE("l_em","No account found with this email");return;}
+  if(u.password!==btoa(pw)){showE("l_pw","Incorrect password");return;}
+  setSession({email:u.email,name:u.name});
+  closeAuth(); renderNav();
+  toast("Welcome back, "+u.name.split(" ")[0]+"! 👋","green");
+}
+
+/* ---- SIGNUP LOGIC ---- */
+function doSignup(){
+  const nm=gv("s_nm"),em=gv("s_em"),pw=gv("s_pw"),pw2=gv("s_pw2");
+  let ok=true;
+  document.getElementById("s_ge").textContent="";
+  if(!nm||nm.length<2){showE("s_nm","Enter your full name (min 2 chars)");ok=false;}else markOk("s_nm");
+  if(!em){showE("s_em","Email is required");ok=false;}
+  else if(!isEmail(em)){showE("s_em","Enter a valid email address");ok=false;}
+  else markOk("s_em");
+  if(!pw||pw.length<6){showE("s_pw","Password must be at least 6 characters");ok=false;}else markOk("s_pw");
+  if(!pw2){showE("s_pw2","Please confirm your password");ok=false;}
+  else if(pw!==pw2){showE("s_pw2","Passwords do not match");ok=false;}
+  else if(pw.length>=6) markOk("s_pw2");
+  if(!ok) return;
+  const users=getUsers();
+  if(users[em.toLowerCase()]){showE("s_em","An account with this email already exists");return;}
+  users[em.toLowerCase()]={email:em.toLowerCase(),name:nm,password:btoa(pw)};
+  saveUsers(users);
+  setSession({email:em.toLowerCase(),name:nm});
+  document.getElementById("authBody").innerHTML=`
+    <div class="success-box">
+      <div class="s-icon">🎉</div>
+      <div class="s-title">Account Created!</div>
+      <div class="s-sub">Welcome to Deal Hunter, ${nm.split(" ")[0]}!<br>You're signed in and ready to find deals.</div>
+      <button class="auth-btn" onclick="closeAuth()">Start Shopping →</button>
+    </div>`;
+  renderNav();
+  toast("Account created! Welcome, "+nm.split(" ")[0]+" 🎉","green");
+}
+
+/* ===== PRODUCTS ===== */
+const fmt=n=>"₹"+n.toLocaleString("en-IN");
+function renderCatBar(){
+  document.getElementById("catBar").innerHTML=cats.map(c=>`<span class="${c===activeCat?"active":""}" onclick="setCat('${c}')">${c}</span>`).join("");
+}
+function setCat(c){activeCat=c;searchQuery="";document.getElementById("searchInput").value="";renderAll();}
+function getFiltered(){
+  let list=products;
+  if(activeCat!=="All") list=list.filter(p=>p.cat===activeCat);
+  if(searchQuery) list=list.filter(p=>p.name.toLowerCase().includes(searchQuery)||p.cat.toLowerCase().includes(searchQuery)||p.desc.toLowerCase().includes(searchQuery));
+  return list;
+}
+function renderAll(){
+  renderCatBar();
+  const content=document.getElementById("mainContent"), filtered=getFiltered();
+  if(searchQuery){
+    content.innerHTML=`<p class="section-title">Results for "${searchQuery}" (${filtered.length} found)</p><div class="products-grid" id="pgrid"></div>`;
+    const g=document.getElementById("pgrid");
+    if(!filtered.length) g.innerHTML='<div class="empty">No products found. Try a different search term.</div>';
+    else filtered.forEach(p=>g.appendChild(makeCard(p)));
+    return;
+  }
+  let html="";
+  if(activeCat==="All"){
+    html+=`<p class="section-title">Shop by Category</p><div class="cat-grid">`;
+    cats.slice(1).forEach(c=>{html+=`<div class="cat-card" onclick="setCat('${c}')"><div class="cat-icon">${catIcons[c]||"📦"}</div><p>${c}</p></div>`;});
+    html+=`</div><p class="section-title">Today's Best Deals</p><div class="products-grid" id="pgrid"></div>`;
+  } else {
+    html+=`<p class="section-title">${activeCat} — ${filtered.length} products</p><div class="products-grid" id="pgrid"></div>`;
+  }
+  content.innerHTML=html;
+  const g=document.getElementById("pgrid");
+  if(g) filtered.forEach(p=>g.appendChild(makeCard(p)));
+}
+function makeCard(p){
+  const d=document.createElement("div");
+  d.className="product-card"; d.onclick=()=>openProduct(p);
+  d.innerHTML=`
+    <div class="product-img" style="background:${catBg[p.cat]||"#f3f4f6"}">${p.icon}</div>
+    <div class="product-info">
+      <span class="badge">${p.off}% OFF</span>
+      <p class="product-name">${p.name}</p>
+      <div class="price-row"><span class="price">${fmt(p.price)}</span><span class="orig">${fmt(p.orig)}</span></div>
+      <button class="add-btn" onclick="event.stopPropagation();addToCart('${p.name.replace(/'/g,"\\'")}')">Add to Cart</button>
+    </div>`;
+  return d;
+}
+function openProduct(p){
+  document.getElementById("modalTitle").textContent=p.name;
+  const sorted=[...p.stores].sort((a,b)=>a.price-b.price), best=sorted[0].price;
+  const rows=sorted.map(s=>`
+    <div class="store-row${s.price===best?" best":""}">
+      <span class="store-name">${s.name}</span>
+      <div class="store-right">
+        <span class="store-price">${fmt(s.price)}</span>
+        ${s.price===best?'<span class="best-tag">Best price</span>':""}
+      </div>
+    </div>`).join("");
+  document.getElementById("modalBody").innerHTML=`
+    <div class="modal-img" style="background:${catBg[p.cat]||"#f3f4f6"}">${p.icon}</div>
+    <p class="modal-name">${p.name}</p>
+    <p class="modal-desc">${p.desc}</p>
+    <div class="price-row"><span class="price" style="font-size:20px">${fmt(p.price)}</span><span class="orig">${fmt(p.orig)}</span><span class="badge">${p.off}% OFF</span></div>
+    <p class="compare-title" style="margin-top:16px">Compare prices across stores</p>
+    ${rows}
+    <button class="buy-btn" onclick="buyNow('${sorted[0].name}','${fmt(best)}')">Buy at ${sorted[0].name} — ${fmt(best)}</button>`;
+  document.getElementById("prodModal").style.display="flex";
+}
+function closeProdModal(){document.getElementById("prodModal").style.display="none";}
+function addToCart(name){
+  if(!getSession()){openAuth("login");toast("Please login to add items to cart");return;}
+  toast(`"${name}" added to cart! 🛒`,"green");
+}
+function buyNow(store,price){
+  if(!getSession()){openAuth("login");toast("Please login to continue");return;}
+  toast(`Redirecting to ${store}...`);
+}
+function handleSearch(e){if(e.key==="Enter") doSearch();}
+function doSearch(){searchQuery=document.getElementById("searchInput").value.trim().toLowerCase();activeCat="All";renderAll();}
+
+/* ===== INIT ===== */
+renderNav();
+renderAll();
+</script>
+</body>
+</html>
